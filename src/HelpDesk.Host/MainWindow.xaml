@@ -1,0 +1,105 @@
+﻿<Window x:Class="HelpDesk.Host.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HelpDesk" Height="720" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource SurfaceBrush}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- 左侧导航栏 -->
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+            <DockPanel>
+                <!-- Logo -->
+                <Border DockPanel.Dock="Top" Margin="16,20,16,24">
+                    <StackPanel>
+                        <TextBlock Text="HelpDesk" 
+                                   FontSize="22" FontWeight="Bold" 
+                                   Foreground="White" HorizontalAlignment="Center"/>
+                        <TextBlock Text="PC 帮助平台" 
+                                   FontSize="12" 
+                                   Foreground="{StaticResource SidebarTextBrush}" 
+                                   HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- 导航菜单 -->
+                <StackPanel DockPanel.Dock="Top" Margin="8,0">
+                    <RadioButton x:Name="NavHome" Content="首页" 
+                                 Style="{StaticResource {x:Type RadioButton}}" 
+                                 Foreground="{StaticResource SidebarTextBrush}"
+                                 IsChecked="True"
+                                 Checked="Nav_Checked" Tag="Home"
+                                 Padding="12,10" Margin="0,1" Cursor="Hand"
+                                 FontSize="14"/>
+                    <RadioButton x:Name="NavPlugins" Content="插件市场"
+                                 Style="{StaticResource {x:Type RadioButton}}"
+                                 Foreground="{StaticResource SidebarTextBrush}"
+                                 Checked="Nav_Checked" Tag="Plugins"
+                                 Padding="12,10" Margin="0,1" Cursor="Hand"
+                                 FontSize="14"/>
+                    <RadioButton x:Name="NavInstalled" Content="已安装"
+                                 Style="{StaticResource {x:Type RadioButton}}"
+                                 Foreground="{StaticResource SidebarTextBrush}"
+                                 Checked="Nav_Checked" Tag="Installed"
+                                 Padding="12,10" Margin="0,1" Cursor="Hand"
+                                 FontSize="14"/>
+                    <RadioButton x:Name="NavSettings" Content="设置"
+                                 Style="{StaticResource {x:Type RadioButton}}"
+                                 Foreground="{StaticResource SidebarTextBrush}"
+                                 Checked="Nav_Checked" Tag="Settings"
+                                 Padding="12,10" Margin="0,1" Cursor="Hand"
+                                 FontSize="14"/>
+                </StackPanel>
+                
+                <!-- 底部版本信息 -->
+                <TextBlock DockPanel.Dock="Bottom" 
+                           Text="v1.0.0" 
+                           FontSize="11" 
+                           Foreground="#64748B"
+                           HorizontalAlignment="Center" 
+                           Margin="0,0,0,16"/>
+            </DockPanel>
+        </Border>
+        
+        <!-- 主内容区 -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- 顶部标题栏 -->
+            <Border Grid.Row="0" Background="{StaticResource CardBrush}" 
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1"
+                    Padding="24,16">
+                <DockPanel>
+                    <TextBlock x:Name="PageTitle" Text="首页" 
+                               FontSize="20" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock DockPanel.Dock="Right" 
+                               x:Name="StatusText" Text="就绪"
+                               FontSize="12" VerticalAlignment="Center"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                </DockPanel>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <ContentControl x:Name="MainContent" Grid.Row="1" Margin="24,16"/>
+            
+            <!-- 底部状态栏 -->
+            <Border Grid.Row="2" Background="{StaticResource CardBrush}"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
+                    Padding="16,8">
+                <DockPanel>
+                    <TextBlock x:Name="StatusBarText" Text="就绪 - 未加载任何插件"
+                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

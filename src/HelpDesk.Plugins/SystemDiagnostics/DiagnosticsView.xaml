@@ -1,0 +1,66 @@
+<UserControl x:Class="HelpDesk.Plugins.SystemDiagnostics.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8FAFC">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <!-- 健康评分卡片 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="24" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="系统健康评分" FontSize="18" FontWeight="SemiBold" Foreground="#1E293B"/>
+                        <TextBlock x:Name="HealthStatus" Text="检测中..." FontSize="14" Foreground="#64748B" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBlock x:Name="HealthScoreText" Grid.Column="1" Text="--" 
+                               FontSize="48" FontWeight="Bold" Foreground="#10B981"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- CPU 监控 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="CPU 使用率" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
+                        <TextBlock x:Name="CpuText" Text="--%" FontSize="14" FontWeight="SemiBold" Foreground="#2563EB" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <ProgressBar x:Name="CpuProgressBar" Height="8" Minimum="0" Maximum="100" 
+                                 Background="#E2E8F0" Foreground="#2563EB" BorderThickness="0"/>
+                    <TextBlock x:Name="CpuStatus" Text="检测中..." FontSize="12" Foreground="#64748B" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- 内存监控 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="内存使用" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
+                        <TextBlock x:Name="MemoryText" Text="--" FontSize="14" FontWeight="SemiBold" Foreground="#8B5CF6" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <ProgressBar x:Name="MemoryProgressBar" Height="8" Minimum="0" Maximum="100"
+                                 Background="#E2E8F0" Foreground="#8B5CF6" BorderThickness="0"/>
+                    <TextBlock x:Name="MemoryStatus" Text="检测中..." FontSize="12" Foreground="#64748B" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- 磁盘监控 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="磁盘使用 (C:)" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
+                        <TextBlock x:Name="DiskText" Text="--" FontSize="14" FontWeight="SemiBold" Foreground="#F59E0B" HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <ProgressBar x:Name="DiskProgressBar" Height="8" Minimum="0" Maximum="100"
+                                 Background="#E2E8F0" Foreground="#F59E0B" BorderThickness="0"/>
+                    <TextBlock x:Name="DiskStatus" Text="检测中..." FontSize="12" Foreground="#64748B" Margin="0,6,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

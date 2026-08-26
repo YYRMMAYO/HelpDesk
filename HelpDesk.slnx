@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/HelpDesk.Contracts/HelpDesk.Contracts.csproj" />
+    <Project Path="src/HelpDesk.Host/HelpDesk.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/" />
+  <Folder Name="/src/HelpDesk.Plugins/NetworkToolkit/">
+    <Project Path="src/HelpDesk.Plugins/NetworkToolkit/HelpDesk.Plugins.NetworkToolkit.csproj" />
+  </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/SystemCleaner/">
+    <Project Path="src/HelpDesk.Plugins/SystemCleaner/HelpDesk.Plugins.SystemCleaner.csproj" />
+  </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/SystemDiagnostics/">
+    <Project Path="src/HelpDesk.Plugins/SystemDiagnostics/HelpDesk.Plugins.SystemDiagnostics.csproj" />
+  </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/TroubleshootGuide/">
+    <Project Path="src/HelpDesk.Plugins/TroubleshootGuide/HelpDesk.Plugins.TroubleshootGuide.csproj" />
+  </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/UpdateHelper/">
+    <Project Path="src/HelpDesk.Plugins/UpdateHelper/HelpDesk.Plugins.UpdateHelper.csproj" />
+  </Folder>
+</Solution>
