@@ -53,7 +53,7 @@ public class PluginManager
     /// <summary>
     /// GitHub 仓库配置
     /// </summary>
-    public string GitHubOwner { get; set; } = "YOUR_GITHUB_USERNAME";
+    public string GitHubOwner { get; set; } = "YYRMMAYO";
     public string GitHubRepo { get; set; } = "HelpDesk-Plugins";
     public string GitHubBranch { get; set; } = "main";
     
@@ -228,8 +228,24 @@ public class PluginManager
         if (_loadedPlugins.ContainsKey(pluginId))
             return _loadedPlugins[pluginId];
         
-        var dllPath = Directory.GetFiles(installed.LocalPath, "*.dll")
-            .FirstOrDefault(f => !Path.GetFileName(f).StartsWith("HelpDesk."));
+        string? dllPath = null;
+        
+        // 优先从 metadata.json 读取 DllName
+        var metaFile = Path.Combine(installed.LocalPath, "metadata.json");
+        if (File.Exists(metaFile))
+        {
+            var metaJson = File.ReadAllText(metaFile);
+            var meta = JsonConvert.DeserializeObject<GitHubPluginInfo>(metaJson);
+            if (meta != null && !string.IsNullOrEmpty(meta.DllName))
+            {
+                var candidate = Path.Combine(installed.LocalPath, meta.DllName);
+                if (File.Exists(candidate)) dllPath = candidate;
+            }
+        }
+        
+        // 回退：加载第一个非 Contracts 的 DLL
+        dllPath ??= Directory.GetFiles(installed.LocalPath, "*.dll")
+            .FirstOrDefault(f => !Path.GetFileName(f).StartsWith("HelpDesk.Contracts"));
         
         if (dllPath == null) return null;
         
