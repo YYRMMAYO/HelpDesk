@@ -14,7 +14,75 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-            
+
+            <!-- 网速检测 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <TextBlock x:Name="SpeedGrade" DockPanel.Dock="Right" Text="" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="#64748B" VerticalAlignment="Center"/>
+                        <TextBlock Text="网速检测" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B"/>
+                    </DockPanel>
+                    <TextBlock x:Name="SpeedStatus" Text="点「开始测速」测一下当前带宽，大约需要 20 秒"
+                               FontSize="12" Foreground="#64748B" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                    <ProgressBar x:Name="SpeedProgress" Height="6" Minimum="0" Maximum="100" Value="0"
+                                 Background="#E2E8F0" Foreground="#2563EB" BorderThickness="0"
+                                 Margin="0,0,0,16"/>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="延迟" FontSize="12" Foreground="#64748B"/>
+                            <TextBlock x:Name="LatencyValue" Text="--" FontSize="22" FontWeight="Bold" Foreground="#1E293B"/>
+                            <TextBlock Text="毫秒" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="抖动" FontSize="12" Foreground="#64748B"/>
+                            <TextBlock x:Name="JitterValue" Text="--" FontSize="22" FontWeight="Bold" Foreground="#1E293B"/>
+                            <TextBlock Text="毫秒" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="下载" FontSize="12" Foreground="#64748B"/>
+                            <TextBlock x:Name="DownloadValue" Text="--" FontSize="22" FontWeight="Bold" Foreground="#2563EB"/>
+                            <TextBlock Text="Mbps" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="上传" FontSize="12" Foreground="#64748B"/>
+                            <TextBlock x:Name="UploadValue" Text="--" FontSize="22" FontWeight="Bold" Foreground="#8B5CF6"/>
+                            <TextBlock Text="Mbps" FontSize="11" Foreground="#94A3B8"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <Button x:Name="StartSpeedTestButton" Content="开始测速"
+                                Click="StartSpeedTest_Click"
+                                Background="#2563EB" Foreground="White" BorderThickness="0"
+                                Padding="18,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"/>
+                        <Button x:Name="CancelSpeedTestButton" Content="取消" IsEnabled="False"
+                                Click="CancelSpeedTest_Click"
+                                Background="#E2E8F0" Foreground="#475569" BorderThickness="0"
+                                Padding="18,8" FontSize="13" Cursor="Hand" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock Text="自定义测速地址（可选，留空则自动选择测速节点）"
+                               FontSize="12" Foreground="#64748B" Margin="0,0,0,4"/>
+                    <TextBox x:Name="CustomSpeedUrl" Padding="8,6,8,6" FontSize="12"/>
+
+                    <TextBlock x:Name="SpeedDetail" Text="" FontSize="11" Foreground="#94A3B8"
+                               TextWrapping="Wrap" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
             <!-- 适配器信息 -->
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>
@@ -30,22 +98,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        
+
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="名称:" Foreground="#64748B" FontSize="13" Margin="0,0,0,8"/>
                         <TextBlock x:Name="AdapterName" Grid.Row="0" Grid.Column="1" Text="--" Foreground="#1E293B" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                        
+
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="类型:" Foreground="#64748B" FontSize="13" Margin="0,0,0,8"/>
                         <TextBlock x:Name="AdapterType" Grid.Row="1" Grid.Column="1" Text="--" Foreground="#1E293B" FontSize="13" Margin="0,0,0,8"/>
-                        
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="速度:" Foreground="#64748B" FontSize="13" Margin="0,0,0,8"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="链路速率:" Foreground="#64748B" FontSize="13" Margin="0,0,0,8"/>
                         <TextBlock x:Name="Speed" Grid.Row="2" Grid.Column="1" Text="--" Foreground="#1E293B" FontSize="13" Margin="0,0,0,8"/>
-                        
+
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="IP 地址:" Foreground="#64748B" FontSize="13" Margin="0,0,0,8"/>
                         <TextBlock x:Name="IPAddress" Grid.Row="3" Grid.Column="1" Text="--" Foreground="#1E293B" FontSize="13"/>
                     </Grid>
+                    <TextBlock Text="注：链路速率是网卡与路由器之间的协商速率，不等于实际网速，实际网速请看上面的测速结果。"
+                               FontSize="11" Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,10,0,0"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- DNS 测试 -->
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>
@@ -54,7 +124,7 @@
                     <TextBlock x:Name="DnsDetail" Text="" FontSize="12" Foreground="#64748B"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- Ping 测试 -->
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>

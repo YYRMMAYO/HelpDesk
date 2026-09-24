@@ -8,10 +8,11 @@
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,12">
+                        <TextBlock x:Name="TempStatus" DockPanel.Dock="Right" Text="检测中..." FontSize="13"
+                                   HorizontalAlignment="Right" Foreground="#64748B" VerticalAlignment="Center"/>
                         <TextBlock Text="临时文件清理" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B"/>
-                        <TextBlock x:Name="TempStatus" Text="检测中..." FontSize="13" HorizontalAlignment="Right" Foreground="#64748B"/>
                     </DockPanel>
-                    
+
                     <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -20,22 +21,34 @@
                         <StackPanel>
                             <TextBlock Text="可清理空间" FontSize="13" Foreground="#64748B"/>
                             <TextBlock x:Name="TempSize" Text="--" FontSize="28" FontWeight="Bold" Foreground="#F59E0B"/>
+                            <TextBlock x:Name="TempFileCount" Text="" FontSize="12" Foreground="#94A3B8" Margin="0,2,0,0"/>
                         </StackPanel>
                         <TextBlock Grid.Column="1" Text="📁" FontSize="40" VerticalAlignment="Center"/>
                     </Grid>
-                    
-                    <Button Content="清理临时文件" Click="CleanTempFiles_Click"
-                            Background="#F59E0B" Foreground="White" BorderThickness="0"
-                            Padding="16,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"
-                            HorizontalAlignment="Left"/>
+
+                    <CheckBox x:Name="SkipRecent" Content="只清理 5 分钟以前的文件（推荐，避免影响正在运行的程序）"
+                              FontSize="12" Foreground="#475569" IsChecked="True" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="CleanButton" Content="清理临时文件" Click="CleanTempFiles_Click"
+                                Background="#F59E0B" Foreground="White" BorderThickness="0"
+                                Padding="16,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"/>
+                        <Button x:Name="RescanButton" Content="重新扫描" Click="Rescan_Click"
+                                Background="#E2E8F0" Foreground="#475569" BorderThickness="0"
+                                Padding="16,8" FontSize="13" Cursor="Hand" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="CleanResult" Text="" FontSize="12" Foreground="#64748B"
+                               TextWrapping="Wrap" Margin="0,12,0,0"/>
                 </StackPanel>
             </Border>
-            
-            <!-- 磁盘信息 -->
+
+            <!-- 说明 -->
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>
-                    <TextBlock Text="磁盘信息" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,12"/>
-                    <TextBlock Text="扫描临时文件夹以查看可释放的空间" FontSize="13" Foreground="#64748B"/>
+                    <TextBlock Text="关于清理范围" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,10"/>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#64748B"
+                               Text="只清理你自己账户下的临时文件夹，不会动系统目录，也不会碰你的文档、图片、桌面等个人文件。正在被程序占用的文件会自动跳过，不会被强行删除。"/>
                 </StackPanel>
             </Border>
         </StackPanel>

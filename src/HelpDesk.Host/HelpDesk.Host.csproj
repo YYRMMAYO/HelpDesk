@@ -7,13 +7,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 
-  </PropertyGroup>
+    <!-- exe 叫 HelpDesk.exe 而不是 HelpDesk.Host.exe：面向普通用户，文件名要一眼能懂 -->
+    <AssemblyName>HelpDesk</AssemblyName>
+    <RootNamespace>HelpDesk.Host</RootNamespace>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Product>HelpDesk 电脑助手</Product>
+    <Description>面向普通 Windows 用户的插件式电脑助手</Description>
+    <Company>HelpDesk</Company>
+    <Copyright>Copyright (c) 2026 YYRMM</Copyright>
+
+    <!-- asInvoker + PerMonitorV2 高 DPI（详见 app.manifest 内的说明） -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- 只保留中文的框架资源卫星程序集：默认会把 .NET 运行时自带的几十种语言的
+         *.resources.dll 全部发布出去，白白增大 30 MB 左右的安装包体积。 -->
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HelpDesk.Contracts\HelpDesk.Contracts.csproj" />

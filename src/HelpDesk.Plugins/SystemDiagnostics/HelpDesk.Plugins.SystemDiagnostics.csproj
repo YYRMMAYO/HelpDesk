@@ -5,12 +5,11 @@
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Management" Version="8.0.0" />
-  </ItemGroup>
-
+  <!-- 不再需要 System.Management：CPU/内存改用 GetSystemTimes / GlobalMemoryStatusEx 系统调用，
+       插件包因此不再携带 System.Management.dll 及其 runtimes 目录。 -->
   <ItemGroup>
     <ProjectReference Include="..\..\HelpDesk.Contracts\HelpDesk.Contracts.csproj" />
   </ItemGroup>

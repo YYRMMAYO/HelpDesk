@@ -1,0 +1,134 @@
+<UserControl x:Class="HelpDesk.Plugins.SoftwareUninstaller.UninstallerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#F8FAFC">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+
+            <!-- 顶部：说明 + 工具栏 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="软件卸载" FontSize="16" FontWeight="SemiBold" Foreground="#1E293B"/>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#64748B" Margin="0,6,0,0"
+                               Text="列表内容与 Windows 自带「程序和功能」完全一致。点「卸载」会运行该软件自己注册的卸载程序，不会删除你的个人文件。清理残留时只处理注册表里记录的安装目录，不会碰同名或相似的文件夹。"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button x:Name="ScanButton" Content="扫描已安装软件" Click="Scan_Click"
+                                Background="#2563EB" Foreground="White" BorderThickness="0"
+                                Padding="18,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"/>
+                        <TextBox x:Name="SearchBox" Width="220" Padding="8,6,8,6" FontSize="13"
+                                 Margin="12,0,0,0" VerticalContentAlignment="Center"
+                                 TextChanged="SearchBox_TextChanged"/>
+                        <TextBlock Text="搜索软件名" FontSize="12" Foreground="#94A3B8"
+                                   VerticalAlignment="Center" Margin="8,0,0,0"/>
+                        <CheckBox x:Name="ShowSystemComponents" Content="显示系统组件"
+                                  FontSize="12" Foreground="#475569" VerticalAlignment="Center"
+                                  Margin="16,0,0,0" Checked="ShowSystemComponents_Changed"
+                                  Unchecked="ShowSystemComponents_Changed"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="ScanStatus" Text="点「扫描已安装软件」开始（首次扫描约需几秒）"
+                               FontSize="12" Foreground="#64748B" Margin="0,12,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 软件列表 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="已安装的软件" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,10"/>
+                    <ListView x:Name="ProgramList" Height="240" FontSize="13"
+                              BorderBrush="#E2E8F0" BorderThickness="1"
+                              SelectionChanged="ProgramList_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="名称" Width="320" DisplayMemberBinding="{Binding DisplayName}"/>
+                                <GridViewColumn Header="版本" Width="120" DisplayMemberBinding="{Binding DisplayVersion}"/>
+                                <GridViewColumn Header="发布者" Width="200" DisplayMemberBinding="{Binding Publisher}"/>
+                                <GridViewColumn Header="大小" Width="90" DisplayMemberBinding="{Binding SizeText}"/>
+                                <GridViewColumn Header="安装日期" Width="100" DisplayMemberBinding="{Binding InstallDateText}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- 选中软件的详情与操作 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock x:Name="SelectionTitle" Text="未选择软件"
+                               FontSize="14" FontWeight="SemiBold" Foreground="#1E293B" Margin="0,0,0,10"/>
+
+                    <Grid x:Name="DetailGrid" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="版本 / 发布者" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="DetailVersion" Grid.Row="0" Grid.Column="1" Text="--" FontSize="12" Foreground="#1E293B" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="安装位置" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="DetailLocation" Grid.Row="1" Grid.Column="1" Text="--" FontSize="12" Foreground="#1E293B" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="卸载命令" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBox x:Name="DetailCommand" Grid.Row="2" Grid.Column="1" IsReadOnly="True"
+                                 FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"
+                                 Background="#F8FAFC" BorderBrush="#E2E8F0" Padding="6,4,6,4"
+                                 Margin="0,0,0,6" MaxHeight="70" VerticalScrollBarVisibility="Auto"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="注册表项" FontSize="12" Foreground="#64748B" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="DetailRegistryPath" Grid.Row="3" Grid.Column="1" Text="--" FontSize="11"
+                                   Foreground="#94A3B8" TextWrapping="Wrap" Margin="0,0,0,6"/>
+
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <Button x:Name="UninstallButton" Content="卸载这个软件" IsEnabled="False"
+                                Click="Uninstall_Click"
+                                Background="#EF4444" Foreground="White" BorderThickness="0"
+                                Padding="18,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand"/>
+                        <Button x:Name="ScanResidueButton" Content="扫描残留" IsEnabled="False"
+                                Click="ScanResidue_Click"
+                                Background="#E2E8F0" Foreground="#475569" BorderThickness="0"
+                                Padding="18,8" FontSize="13" Cursor="Hand" Margin="8,0,0,0"/>
+                        <CheckBox x:Name="QuietUninstall" Content="静默卸载（不弹界面）"
+                                  FontSize="12" Foreground="#475569" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="ActionStatus" Text="" FontSize="12" Foreground="#64748B"
+                               TextWrapping="Wrap" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 残留清理 -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="卸载残留" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
+                    <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="#64748B" Margin="0,6,0,0"
+                               Text="这里列出的每一项都必须是「注册表里记录的该软件安装目录」或「它自己的卸载注册表项」。凡是会被安全规则拦下的路径都会标红并说明原因，且不会被删除。"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <CheckBox x:Name="SelectAllResidue" Content="全选可删除项"
+                                  FontSize="12" Foreground="#475569" VerticalAlignment="Center"
+                                  IsEnabled="False" Click="SelectAllResidue_Click"/>
+                        <Button x:Name="DeleteResidueButton" Content="删除选中的残留" IsEnabled="False"
+                                Click="DeleteResidue_Click"
+                                Background="#EF4444" Foreground="White" BorderThickness="0"
+                                Padding="18,8" FontSize="13" FontWeight="SemiBold" Cursor="Hand" Margin="16,0,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="ResiduePanel" Margin="0,12,0,0"/>
+                    <TextBlock x:Name="ResidueStatus" Text="选择上面的软件后点「扫描残留」"
+                               FontSize="12" Foreground="#64748B" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

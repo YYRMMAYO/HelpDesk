@@ -12,10 +12,11 @@ public class TroubleshootGuidePlugin : IPlugin
         Id = "troubleshoot-guide",
         Name = "故障排除指南",
         Description = "15 类常见 PC 故障的步骤化修复指南",
-        Version = "1.0.0",
+        Version = "1.1.0",
         Author = "HelpDesk",
         GitHubFolder = "TroubleshootGuide",
-        Tags = ["故障", "修复", "指南", "蓝屏", "启动"]
+        Tags = ["故障", "修复", "指南", "蓝屏", "启动"],
+        MinHostVersion = 1.1
     };
     
     private IPluginContext _context = null!;

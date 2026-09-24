@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- 需要 UseWPF：插件里的视图类型继承自 UserControl，加载插件程序集时
+         必须能解析 PresentizationFramework 等 WPF 程序集。 -->
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>PluginPackager</AssemblyName>
+    <RootNamespace>HelpDesk.Tools.PluginPackager</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\HelpDesk.Contracts\HelpDesk.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

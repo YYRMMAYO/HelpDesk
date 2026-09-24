@@ -7,6 +7,9 @@
   <Folder Name="/src/HelpDesk.Plugins/NetworkToolkit/">
     <Project Path="src/HelpDesk.Plugins/NetworkToolkit/HelpDesk.Plugins.NetworkToolkit.csproj" />
   </Folder>
+  <Folder Name="/src/HelpDesk.Plugins/SoftwareUninstaller/">
+    <Project Path="src/HelpDesk.Plugins/SoftwareUninstaller/HelpDesk.Plugins.SoftwareUninstaller.csproj" />
+  </Folder>
   <Folder Name="/src/HelpDesk.Plugins/SystemCleaner/">
     <Project Path="src/HelpDesk.Plugins/SystemCleaner/HelpDesk.Plugins.SystemCleaner.csproj" />
   </Folder>
@@ -16,7 +19,7 @@
   <Folder Name="/src/HelpDesk.Plugins/TroubleshootGuide/">
     <Project Path="src/HelpDesk.Plugins/TroubleshootGuide/HelpDesk.Plugins.TroubleshootGuide.csproj" />
   </Folder>
-  <Folder Name="/src/HelpDesk.Plugins/UpdateHelper/">
-    <Project Path="src/HelpDesk.Plugins/UpdateHelper/HelpDesk.Plugins.UpdateHelper.csproj" />
+  <Folder Name="/tools/">
+    <Project Path="tools/PluginPackager/PluginPackager.csproj" />
   </Folder>
 </Solution>

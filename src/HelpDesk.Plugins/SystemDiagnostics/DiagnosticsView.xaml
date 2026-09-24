@@ -53,7 +53,7 @@
             <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,0,0,12">
                 <StackPanel>
                     <DockPanel Margin="0,0,0,8">
-                        <TextBlock Text="磁盘使用 (C:)" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
+                        <TextBlock x:Name="DiskTitle" Text="磁盘使用" FontSize="14" FontWeight="SemiBold" Foreground="#1E293B"/>
                         <TextBlock x:Name="DiskText" Text="--" FontSize="14" FontWeight="SemiBold" Foreground="#F59E0B" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <ProgressBar x:Name="DiskProgressBar" Height="8" Minimum="0" Maximum="100"

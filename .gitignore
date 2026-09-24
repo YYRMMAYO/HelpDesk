@@ -42,6 +42,11 @@ ehthumbs.db
 Desktop.ini
 .DS_Store
 
-## Publish
+## 构建产物：发布目录 / 安装包（体积大，走 Release 附件而不是提交进仓库）
 publish/
 artifacts/
+dist/
+
+## plugins-release 是一个独立的 git 仓库（插件分发仓库的本地克隆），
+## 有自己的远端；它不能被当成主仓库的子目录提交（会变成坏掉的 embedded repo）。
+plugins-release/
