@@ -224,8 +224,53 @@ public class PluginManager
     private IEnumerable<string> BuildSourceUrls(string repoRelativePath)
     {
         var path = repoRelativePath.TrimStart('/');
-        yield return $"https://raw.githubusercontent.com/{GitHubOwner}/{GitHubRepo}/{GitHubBranch}/{path}";
-        yield return $"https://cdn.jsdelivr.net/gh/{GitHubOwner}/{GitHubRepo}@{GitHubBranch}/{path}";
+        // 用「解析到的提交号」而不是分支名：见 _pinnedRef 的说明
+        var reference = _pinnedRef ?? GitHubBranch;
+
+        yield return $"https://raw.githubusercontent.com/{GitHubOwner}/{GitHubRepo}/{reference}/{path}";
+        yield return $"https://cdn.jsdelivr.net/gh/{GitHubOwner}/{GitHubRepo}@{reference}/{path}";
+    }
+
+    /// <summary>
+    /// 本次操作使用的 git 引用（优先是提交号）。
+    /// <para>
+    /// <b>为什么不能用分支名下载</b>：分支名在 CDN 上是有缓存的，而且<b>按路径各自缓存</b>。
+    /// 插件刚发布后，「索引已经刷新、DLL 还是旧的」这种情况很常见，表现就是安装时
+    /// 报「文件与校验清单对不上」——用户完全不知道为什么装不上，重试也未必立刻好转。
+    /// 提交号是不可变的：按提交号取内容永远拿到同一份，索引与文件天然一致。
+    /// </para>
+    /// <para>
+    /// 拿不到提交号时（例如 api.github.com 不可达）退回分支名，此时靠下载重试兜底。
+    /// </para>
+    /// </summary>
+    private string? _pinnedRef;
+
+    /// <summary>解析分支当前的提交号（每次刷新插件列表都会重新解析，所以新版本能立刻看到）。</summary>
+    private async Task<string> ResolveRefAsync(HttpClient http, CancellationToken ct)
+    {
+        try
+        {
+            var url = $"https://api.github.com/repos/{GitHubOwner}/{GitHubRepo}/commits/{GitHubBranch}";
+            var json = await http.GetStringAsync(url, ct);
+            var head = JsonConvert.DeserializeObject<GitHubCommitResponse>(json);
+            if (!string.IsNullOrWhiteSpace(head?.sha))
+            {
+                _pinnedRef = head!.sha;
+                Debug.WriteLine($"已固定引用到提交 {_pinnedRef}");
+                return _pinnedRef;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"解析提交号失败，退回分支名: {ex.Message}");
+        }
+
+        _pinnedRef = GitHubBranch;
+        return _pinnedRef;
     }
 
     /// <summary>按源顺序下载，每个源最多重试一次（网络抖动很常见）。</summary>
@@ -384,6 +429,9 @@ public class PluginManager
     {
         using var http = CreateHttpClient();
 
+        // 每次刷新都重新解析提交号：否则点了「刷新列表」也看不到刚发布的新版本
+        await ResolveRefAsync(http, ct);
+
         var fromIndex = await TryLoadIndexAsync(http, ct);
         if (fromIndex != null) return fromIndex;
 
@@ -516,6 +564,10 @@ public class PluginManager
         {
             Directory.CreateDirectory(stagingDir);
             using var http = CreateHttpClient();
+
+            // 下载用的引用必须与「索引来自哪一份提交」一致，
+            // 否则可能出现「索引是新的、DLL 是旧的」而校验失败
+            if (_pinnedRef == null) await ResolveRefAsync(http, ct);
 
             // 1) 确定要下载的文件集合
             List<(string RepoPath, string Relative, PluginFileInfo? Expected)> wanted = new();
@@ -1056,6 +1108,12 @@ internal class GitHubTreeItem
     public string path { get; set; } = string.Empty;
     public string type { get; set; } = string.Empty;
     public long size { get; set; }
+}
+
+/// <summary>GitHub 提交信息（只取需要的字段）。</summary>
+internal class GitHubCommitResponse
+{
+    public string sha { get; set; } = string.Empty;
 }
 
 /// <summary>
