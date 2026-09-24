@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Security.Cryptography;
@@ -198,6 +199,8 @@ public class PluginManager
     {
         var http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
         http.DefaultRequestHeaders.Add("User-Agent", "HelpDesk-Client");
+        // 请求 CDN 重新校验缓存：插件刚发布时边缘节点可能还在发旧内容
+        http.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
         return http;
     }
 
@@ -226,15 +229,21 @@ public class PluginManager
     }
 
     /// <summary>按源顺序下载，每个源最多重试一次（网络抖动很常见）。</summary>
+    /// <param name="cacheBuster">非空时作为查询参数附加到 URL 上，用于绕开边缘缓存。</param>
     private async Task<byte[]?> DownloadBytesAsync(
         HttpClient http,
         string repoRelativePath,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? cacheBuster = null)
     {
         Exception? lastError = null;
 
-        foreach (var url in BuildSourceUrls(repoRelativePath))
+        foreach (var baseUrl in BuildSourceUrls(repoRelativePath))
         {
+            var url = cacheBuster == null
+                ? baseUrl
+                : $"{baseUrl}{(baseUrl.Contains('?') ? '&' : '?')}v={cacheBuster}";
+
             for (var attempt = 0; attempt < 2; attempt++)
             {
                 ct.ThrowIfCancellationRequested();
@@ -261,6 +270,74 @@ public class PluginManager
         }
 
         Debug.WriteLine($"下载失败 [{repoRelativePath}]: {lastError?.Message}");
+        return null;
+    }
+
+    /// <summary>
+    /// 下载单个文件并校验，校验不过就重试。
+    /// <para>
+    /// 为什么要重试而不是直接失败：插件刚发布时 <c>raw.githubusercontent.com</c> 的边缘缓存
+    /// 可能还在发旧文件，而索引是新拉的——「文件与清单对不上」这时并不是仓库被篡改，
+    /// 等一会儿或换个 URL 就好了。所以第 2 次起在 URL 上挂随机参数绕缓存，
+    /// 仍不通过才认定有问题，并在提示里说清可能是缓存延迟。
+    /// </para>
+    /// </summary>
+    private async Task<string?> DownloadVerifiedAsync(
+        HttpClient http,
+        string repoPath,
+        string relative,
+        PluginFileInfo? expected,
+        string destinationPath,
+        CancellationToken ct)
+    {
+        const int maxAttempts = 3;
+        string? lastProblem = null;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            var bytes = await DownloadBytesAsync(
+                http, repoPath, ct, attempt == 1 ? null : Guid.NewGuid().ToString("N"));
+
+            if (bytes == null)
+                return $"下载 {relative} 失败（已尝试全部下载源），请检查网络后重试";
+
+            var problem = VerifyBytes(bytes, relative, expected);
+            if (problem == null)
+            {
+                await File.WriteAllBytesAsync(destinationPath, bytes, ct);
+                return null;
+            }
+
+            lastProblem = problem;
+            Debug.WriteLine($"第 {attempt} 次校验未通过：{problem}");
+
+            if (attempt < maxAttempts)
+            {
+                try { await Task.Delay(1500 * attempt, ct); } catch (OperationCanceledException) { throw; }
+            }
+        }
+
+        return $"{lastProblem}。已重试 {maxAttempts} 次" +
+               "——如果这个插件是刚刚才发布的，可能是下载源（CDN）缓存尚未刷新，过 1~2 分钟再试即可。";
+    }
+
+    /// <summary>校验下载到的字节是否符合清单；符合返回 null，否则返回可读原因。</summary>
+    private static string? VerifyBytes(byte[] bytes, string relative, PluginFileInfo? expected)
+    {
+        if (expected == null) return null;   // 兼容模式：没有清单可校验
+
+        if (expected.Size > 0 && bytes.LongLength != expected.Size)
+            return $"文件 {relative} 大小不符（期望 {expected.Size} 字节，实际 {bytes.LongLength} 字节），已中止安装";
+
+        if (!string.IsNullOrWhiteSpace(expected.Sha256))
+        {
+            var actual = Convert.ToHexString(SHA256.HashData(bytes));
+            if (!actual.Equals(expected.Sha256, StringComparison.OrdinalIgnoreCase))
+                return $"文件 {relative} 校验值不匹配，已中止安装（文件可能被篡改）";
+        }
+
         return null;
     }
 
@@ -466,25 +543,8 @@ public class PluginManager
                 var destPath = Path.Combine(stagingDir, relative.Replace('/', Path.DirectorySeparatorChar));
                 Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
 
-                var bytes = await DownloadBytesAsync(http, repoPath, ct);
-                if (bytes == null)
-                    return InstallResult.Fail($"下载 {relative} 失败（已尝试全部下载源），请检查网络后重试");
-
-                if (expected != null)
-                {
-                    if (expected.Size > 0 && bytes.LongLength != expected.Size)
-                        return InstallResult.Fail(
-                            $"文件 {relative} 大小不符（期望 {expected.Size} 字节，实际 {bytes.LongLength} 字节），已中止安装");
-
-                    if (!string.IsNullOrWhiteSpace(expected.Sha256))
-                    {
-                        var actual = Convert.ToHexString(SHA256.HashData(bytes));
-                        if (!actual.Equals(expected.Sha256, StringComparison.OrdinalIgnoreCase))
-                            return InstallResult.Fail($"文件 {relative} 校验值不匹配，已中止安装（文件可能被篡改）");
-                    }
-                }
-
-                await File.WriteAllBytesAsync(destPath, bytes, ct);
+                var problem = await DownloadVerifiedAsync(http, repoPath, relative, expected, destPath, ct);
+                if (problem != null) return InstallResult.Fail(problem);
             }
 
             // 2.5) 把插件元数据一并写进插件目录。
