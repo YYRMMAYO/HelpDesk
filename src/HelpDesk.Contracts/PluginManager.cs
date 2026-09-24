@@ -292,6 +292,7 @@ public class PluginManager
     {
         const int maxAttempts = 3;
         string? lastProblem = null;
+        var downloadFailures = 0;
 
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
@@ -301,7 +302,20 @@ public class PluginManager
                 http, repoPath, ct, attempt == 1 ? null : Guid.NewGuid().ToString("N"));
 
             if (bytes == null)
-                return $"下载 {relative} 失败（已尝试全部下载源），请检查网络后重试";
+            {
+                downloadFailures++;
+
+                // 已经拿到过文件、只是校验没过时，不要用「下载失败」把更有价值的校验结论盖掉：
+                // 网络抖动和「文件与清单对不上」是两件完全不同的事，混在一起会让用户查错方向。
+                if (lastProblem == null && downloadFailures >= 2)
+                    return $"下载 {relative} 失败（已尝试全部下载源），请检查网络后重试";
+
+                if (attempt < maxAttempts)
+                {
+                    try { await Task.Delay(1500 * attempt, ct); } catch (OperationCanceledException) { throw; }
+                }
+                continue;
+            }
 
             var problem = VerifyBytes(bytes, relative, expected);
             if (problem == null)
@@ -319,8 +333,11 @@ public class PluginManager
             }
         }
 
-        return $"{lastProblem}。已重试 {maxAttempts} 次" +
-               "——如果这个插件是刚刚才发布的，可能是下载源（CDN）缓存尚未刷新，过 1~2 分钟再试即可。";
+        if (lastProblem != null)
+            return $"{lastProblem}。已重试 {maxAttempts} 次" +
+                   "——如果这个插件是刚刚才发布的，可能是下载源（CDN）缓存尚未刷新，过 1~2 分钟再试即可。";
+
+        return $"下载 {relative} 失败（已尝试全部下载源），请检查网络后重试";
     }
 
     /// <summary>校验下载到的字节是否符合清单；符合返回 null，否则返回可读原因。</summary>
